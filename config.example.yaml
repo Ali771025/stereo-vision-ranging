@@ -1,0 +1,107 @@
+cameras:
+  left:
+    host: 192.0.2.10
+    rtsp_port: 554
+    http_port: 80
+    http_scheme: http
+    channel: 1
+    transport: rtsp  # rtsp | mjpeg | snapshot
+    username_env: AXIS_LEFT_USER
+    password_env: AXIS_LEFT_PASSWORD
+  right:
+    host: 192.0.2.10
+    rtsp_port: 554
+    http_port: 80
+    http_scheme: http
+    channel: 1
+    transport: rtsp
+    username_env: AXIS_RIGHT_USER
+    password_env: AXIS_RIGHT_PASSWORD
+stream:
+  rtsp_transport: tcp # tcp | udp; RTSP service still uses rtsp_port 554
+  resolution: 1280x720
+  fps: 15
+  open_timeout_ms: 5000
+  read_timeout_ms: 3000
+  max_arrival_skew_ms: 50
+  max_age_ms: 500
+  reconnect_seconds: 1
+geometry:
+  normal_view_confirmed: false
+  fixed_ptz_focus_confirmed: false
+  static_scene_confirmed: false
+  # Mandatory if PTZ readback unavailable. Manually verify before every session.
+  allow_missing_ptz_readback: false
+  ptz_poll_seconds: 2
+  pan_tilt_tolerance_deg: 0.05
+  zoom_focus_tolerance_units: 1
+  rig_label: axis-normal-fixed-v1
+calibration:
+  board_cols: 9  # INNER corners, 10 x 7 squares
+  board_rows: 6
+  square_size_m: null  # REQUIRED: measure the PRINTED square edge, metres
+  min_pairs: 20
+  measured_baseline_m: null # Optional independent optical-centre baseline check
+  baseline_tolerance_fraction: 0.1
+  max_rms_px: 1.0
+  max_validation_epipolar_px: 1.5
+  file: data/calibration.npz
+  pairs_dir: data/pairs
+model:
+  task: detect # detect | segment (only with an existing compatible local segmentation checkpoint)
+  weights: models/yolo26s.pt
+  device: '0' # NVIDIA GPU 0. Use cpu only for explicit CPU execution.
+  imgsz: 640
+  confidence: 0.35
+  classes: null # COCO [0] = person, null = all
+measurement:
+  min_feature_points: 8
+  ratio_test: 0.7
+  max_epipolar_px: 1.5
+  max_reprojection_px: 1.5
+  min_disparity_px: 2
+  max_disparity_px: 512
+  min_depth_m: 0.3
+  max_depth_m: 50
+  min_parallax_deg: 0.25
+  max_relative_depth_spread: 0.12
+  ambiguity_ratio: 1.4
+  disparity_sigma_px: 0.5
+output:
+  directory: outputs
+  save_video: false
+tracking:
+  # Use track --ranges after ptz-calibrate and timing-calibrate.
+  # Separate from geometry.fixed_ptz_focus_confirmed used by STATIC stereo.
+  fixed_mounts_confirmed: false
+  fixed_zoom_focus_confirmed: false
+  person_class_id: 0 # COCO person; change for custom models
+  min_confidence: 0.6
+  min_iou: 0.15
+  max_appearance_distance: 0.35
+  ambiguity_margin: 0.12
+  deadband: 0.04 # Fraction of HALF image width/height around the centre
+  gain_deg: 8.0 # Fallback when track runs WITHOUT dynamic calibration
+  servo_gain: 0.8 # Calibrated image-time bearing feedback gain
+  max_step_deg: 1.5
+  command_interval_s: 0.1
+  speed: 30
+dynamic:
+  require_foreground_mask: false # true refuses body ranges when a local segment model supplies no mask
+  file: data/ptz_calibration.json
+  pairs_dir: data/ptz_pairs
+  timing_file: data/latency_profile.json
+  stationary_board_confirmed: false # ONLY during PTZ calibration; board must stay fixed
+  min_poses: 25
+  min_pan_span_deg: 8
+  min_tilt_span_deg: 6
+  max_fit_reprojection_px: 1.0
+  settle_s: 3
+  pose_poll_s: 0.02
+  http_timeout_s: 0.5
+  max_pose_gap_ms: 250
+  max_pose_rtt_ms: 100
+  max_exposure_skew_ms: 15
+  target_speed_bound_m_s: 3
+  timing_min_samples: 30
+  latency_margin_ms: 1 # Empirical padding, NOT a guaranteed network/display latency bound
