@@ -1,5 +1,10 @@
 # Stereo Vision Ranging
 
+<!-- project-contact:start -->
+**Work with Yosof Omrani:** [Email a project inquiry](mailto:aliomrani916@gmail.com) · **aliomrani916@gmail.com** · [Services & contact](https://ali771025.github.io/software-portfolio/en/contact/) · [Portfolio walkthrough](https://ali771025.github.io/software-portfolio/en/#projects)
+<!-- project-contact:end -->
+
+
 ![Stereo Vision Ranging architecture overview](docs/assets/overview.svg)
 
 **Calibrated dual-camera vision with conservative object matching, ranging and PTZ-aware tracking.**
